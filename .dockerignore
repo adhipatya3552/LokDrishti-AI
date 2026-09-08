@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+.git
+Dockerfile
+.dockerignore
+.env
+.env*.local
+.vercel
+*.log
+C:\Users\adhip\AppData\Local\Temp
