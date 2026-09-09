@@ -2,7 +2,21 @@ import { locationDiscoveryAgent } from '@/agents/location-discovery';
 import { productionIntelligenceAgent } from '@/agents/production-intelligence';
 import { sceneParserAgent } from '@/agents/scene-parser';
 import { computeFeasibilityReport } from '@/lib/scorer';
-import { EvidenceItem, FeasibilityReport, LocationCandidate, SceneSpec } from '@/lib/schemas';
+import { EvidenceItem, FeasibilityReport, LocationCandidate, SceneSpec, EvidenceState } from '@/lib/schemas';
+
+function formatEvidenceStateLabel(state: EvidenceState): string {
+  switch (state) {
+    case 'VERIFIED_EVIDENCE':
+      return 'Verified evidence';
+    case 'SUPPORTED_EVIDENCE':
+      return 'Supported evidence';
+    case 'CONFLICTING_EVIDENCE':
+      return 'Conflicting evidence';
+    case 'INSUFFICIENT_EVIDENCE':
+    default:
+      return 'Needs confirmation';
+  }
+}
 
 export interface OrchestratorEvent {
   type: 'agent_start' | 'agent_end' | 'parallel_query' | 'parallel_result' | 'error' | 'warning' | 'final_result';
@@ -90,7 +104,7 @@ export async function runOrchestrator(
           emit({
             type: 'parallel_result',
             agent: 'Production Intelligence',
-            message: `[${item.evidence_state}] ${item.claim}`,
+            message: `${formatEvidenceStateLabel(item.evidence_state)}: ${item.claim}`,
             sources: [{ title: item.source_title, url: item.source_url, snippet: item.evidence_excerpt }],
           });
         }
