@@ -82,7 +82,15 @@ export async function productionIntelligenceAgent(
     })
     .filter((item): item is EvidenceItem => Boolean(item));
 
-  return { evidenceItems, trace: { queries } };
+  const seen = new Set<string>();
+  const deduped = evidenceItems.filter((item) => {
+    const key = `${item.claim}||${item.source_url}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return { evidenceItems: deduped, trace: { queries } };
 }
 
 function buildProductionQueries(candidate: LocationCandidate, sceneSpec: SceneSpec): string[] {

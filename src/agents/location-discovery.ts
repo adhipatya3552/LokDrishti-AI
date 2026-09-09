@@ -78,17 +78,26 @@ export async function locationDiscoveryAgent(
   return { candidates, trace: { queries } };
 }
 
+function cleanToken(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  const trimmed = value.trim();
+  if (/^(null|undefined|none|n\/a|nil)$/i.test(trimmed)) return '';
+  return trimmed;
+}
+
 function buildDiscoveryQueries(sceneSpec: SceneSpec): string[] {
-  const base = sceneSpec.search_keywords.join(' ');
-  const regional = sceneSpec.regional_preference || sceneSpec.geography_preference || 'India';
+  const base = sceneSpec.search_keywords.map(cleanToken).filter((part) => part.length > 0).join(' ');
+  const regional = cleanToken(sceneSpec.regional_preference) || cleanToken(sceneSpec.geography_preference) || 'India';
+  const architectural = cleanToken(sceneSpec.architectural_style);
+  const weather = cleanToken(sceneSpec.weather_element);
   const queries = [
     `${base} filming location ${regional}`,
     `${sceneSpec.setting_type.replaceAll('_', ' ')} India filming location`,
-    `${sceneSpec.architectural_style || ''} ${sceneSpec.setting_type.replaceAll('_', ' ')} India`,
-    `${sceneSpec.time_of_day} ${sceneSpec.weather_element || ''} ${sceneSpec.setting_type.replaceAll('_', ' ')} India`,
+    `${architectural} ${sceneSpec.setting_type.replaceAll('_', ' ')} India`,
+    `${sceneSpec.time_of_day} ${weather} ${sceneSpec.setting_type.replaceAll('_', ' ')} India`,
   ];
 
-  return Array.from(new Set(queries.map((q) => q.trim()).filter(Boolean)));
+  return Array.from(new Set(queries.map((q) => q.replace(/\s+/g, ' ').trim()).filter(Boolean)));
 }
 
 function slugify(value: string): string {

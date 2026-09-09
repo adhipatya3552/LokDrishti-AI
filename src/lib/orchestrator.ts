@@ -57,7 +57,7 @@ export async function runOrchestrator(
         sources: candidate.discovery_sources,
       });
     }
-    emit({ type: 'agent_end', agent: 'Location Discovery', message: `Discovered ${discovery.candidates.length} candidates.`, data: discovery.candidates });
+    emit({ type: 'agent_end', agent: 'Location Discovery', message: `Discovered ${discovery.candidates.length} candidate${discovery.candidates.length === 1 ? '' : 's'}.`, data: discovery.candidates });
 
     emit({ type: 'agent_start', agent: 'Production Intelligence', message: 'Researching permits, restrictions, and access evidence.' });
 
